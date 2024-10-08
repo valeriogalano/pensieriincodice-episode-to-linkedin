@@ -87,7 +87,10 @@ function publish_to_linkedin(SimpleXMLElement $last_episode, string $linkedin_ac
 
     curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
 
+    // Log curl result
     $result = curl_exec($ch);
+    echo "Result: $result\n";
+
     if (curl_errno($ch)) {
         error_log('Error publishing to LinkedIn: ' . curl_error($ch));
         exit(1);
