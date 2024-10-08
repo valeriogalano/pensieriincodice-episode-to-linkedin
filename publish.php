@@ -58,9 +58,6 @@ function publish_to_linkedin(SimpleXMLElement $last_episode, string $linkedin_ac
                     [
                         'status' => 'READY',
                         'originalUrl' => (string)$link,
-                        'title' => [
-                            'text' => (string)$title
-                        ]
                     ]
                 ]
             ]
