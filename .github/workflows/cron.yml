@@ -1,0 +1,33 @@
+name: Cron
+
+on:
+  schedule:
+    - cron: '0 * * * *'
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    
+    permissions:
+      contents: write
+    
+    steps:
+      - name: Checkout 
+        uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+
+      - name: Execute
+        env:
+          PODCAST_RSS_URL: ${{ vars.PODCAST_RSS_URL }}
+          LINKEDIN_ACCESS_TOKEN: ${{ secrets.LINKEDIN_ACCESS_TOKEN }}
+          LINKEDIN_PERSON_URN: ${{ secrets.LINKEDIN_PERSON_URN }}
+          LINKEDIN_MESSAGE_TEMPLATE: ${{ vars.LINKEDIN_MESSAGE_TEMPLATE }}
+        run: php ./publish.php
+
+      - name: Commit changes
+        uses: stefanzweifel/git-auto-commit-action@v5
