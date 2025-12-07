@@ -73,6 +73,7 @@ function publish_to_linkedin(SimpleXMLElement $last_episode, string $linkedin_ac
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
     curl_setopt($ch, CURLOPT_POST, 1);
     curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($article));
+    curl_setopt($ch, CURLOPT_FAILONERROR, true);
 
     $headers = [
         'Content-Type: application/json',
@@ -81,12 +82,25 @@ function publish_to_linkedin(SimpleXMLElement $last_episode, string $linkedin_ac
 
     curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
 
-    // Log curl result
+    // Execute request
     $result = curl_exec($ch);
+    $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+
+    // Handle transport-level errors (including HTTP >= 400 when FAILONERROR is enabled)
+    if ($result === false) {
+        error_log('Error publishing to LinkedIn: ' . curl_error($ch));
+        curl_close($ch);
+        exit(1);
+    }
+
+    // Log HTTP code and result body for visibility
+    echo "HTTP Code: $httpCode\n";
     echo "Result: $result\n";
 
-    if (curl_errno($ch)) {
-        error_log('Error publishing to LinkedIn: ' . curl_error($ch));
+    // Explicitly fail the script if LinkedIn API does not return a successful 2xx status
+    if ($httpCode < 200 || $httpCode >= 300) {
+        error_log('LinkedIn API error. HTTP Code: ' . $httpCode . ' Response: ' . $result);
+        curl_close($ch);
         exit(1);
     }
 
